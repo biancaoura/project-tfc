@@ -2,7 +2,7 @@ import { Model, DataTypes } from 'sequelize';
 
 import sequelize from '.';
 
-class Team extends Model {
+export default class Team extends Model {
   declare id: number;
   declare teamName: string;
 }
