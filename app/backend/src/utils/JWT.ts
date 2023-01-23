@@ -13,4 +13,8 @@ export default class JWT {
   public createToken(payload: ILogin): string | void {
     return jwt.sign({ payload }, this._secret, this._jwtConfig);
   }
+
+  public validateToken(token: string): string | jwt.JwtPayload {
+    return jwt.verify(token, this._secret);
+  }
 }
