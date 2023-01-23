@@ -26,6 +26,15 @@ export default class UserService {
     }
 
     const token = jwt.createToken(user);
-    return { status: 200, message: token };
+    return { status: StatusCodes.OK, message: token };
+  }
+
+  public async getRole(email: string) {
+    const user = await this._userModel.findOne({ where: { email } });
+    if (user) {
+      return { status: StatusCodes.OK, role: user.role };
+    }
+
+    throw new HttpError(StatusCodes.UNAUTHORIZED, 'Token not found');
   }
 }
