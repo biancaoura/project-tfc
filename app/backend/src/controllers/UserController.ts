@@ -1,21 +1,20 @@
 import { Request, Response } from 'express';
-// import { StatusCodes } from 'http-status-codes';
 import UserService from '../services/UserService';
 
 export default class UserController {
   constructor(private _userService = new UserService()) { }
 
-  public login = async (req: Request, res: Response) => {
+  public login = async (req: Request, res: Response): Promise<void> => {
     const { status, message } = await this._userService.login(req.body);
 
-    return res.status(status).json({ token: message });
+    res.status(status).json({ token: message });
   };
 
-  public getRole = async (req: Request, res: Response) => {
+  public getRole = async (req: Request, res: Response): Promise<void> => {
     const { email } = req.body.user.payload;
 
     const { status, role } = await this._userService.getRole(email);
 
-    return res.status(status).json({ role });
+    res.status(status).json({ role });
   };
 }
