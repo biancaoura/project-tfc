@@ -8,6 +8,7 @@ import User from '../database/models/User';
 import { invalidToken, token, validLogin, validUser } from './mocks/userMock';
 
 import { Response } from 'superagent';
+import { StatusCodes } from 'http-status-codes';
 
 chai.use(chaiHttp);
 
@@ -28,9 +29,7 @@ describe('Testing Login route', function () {
         .resolves(validUser as User);
     });
   
-    afterEach(()=>{
-      (User.findOne as sinon.SinonStub).restore();
-    });
+    afterEach(sinon.restore);
 
     it('1 - Should login and receive a token with correct credentials', async function () {
       response = await chai
@@ -38,7 +37,7 @@ describe('Testing Login route', function () {
       .post(loginRoute)
       .send(validLogin);
 
-      expect(response.status).to.be.equal(200);
+      expect(response.status).to.be.equal(StatusCodes.OK);
       expect(response.body).to.have.property('token');
     });
 
@@ -59,7 +58,7 @@ describe('Testing Login route', function () {
       .post(loginRoute)
       .send({ password: validLogin.password });
       
-      expect(response.status).to.be.equal(400);
+      expect(response.status).to.be.equal(StatusCodes.BAD_REQUEST);
       expect(response.body).to.deep.equal({ message: 'All fields must be filled' });
     });
 
@@ -69,7 +68,7 @@ describe('Testing Login route', function () {
       .post(loginRoute)
       .send({ email: validLogin.email, password: '1234567' });
 
-      expect(response.status).to.be.equal(401);
+      expect(response.status).to.be.equal(StatusCodes.UNAUTHORIZED);
       expect(response.body).to.deep.equal({ message: 'Incorrect email or password' });
     });
 
@@ -79,7 +78,7 @@ describe('Testing Login route', function () {
       .post(loginRoute)
       .send({ email: 'invalid', password: validLogin.password });
 
-      expect(response.status).to.be.equal(401);
+      expect(response.status).to.be.equal(StatusCodes.UNAUTHORIZED);
       expect(response.body).to.deep.equal({ message: 'Incorrect email or password' });
     });
 
@@ -88,6 +87,7 @@ describe('Testing Login route', function () {
       .request(app)
       .get(roleRoute);
 
+      expect(response.status).to.be.equal(StatusCodes.UNAUTHORIZED)
       expect(response.body).to.deep.equal({ message: 'Token not found' });
     });
 
@@ -97,6 +97,7 @@ describe('Testing Login route', function () {
       .get(roleRoute)
       .set({ 'Authorization': invalidToken });
 
+      expect(response.status).to.be.equal(StatusCodes.UNAUTHORIZED)
       expect(response.body).to.deep.equal({ message: 'Token not found' });
     })
   });
