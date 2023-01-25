@@ -10,6 +10,8 @@ router.get('/', matchController.getAll);
 
 router.post('/', ValidateToken.auth, matchController.create);
 
-router.patch('/:id/finish', matchController.edit);
+router.patch('/:id', matchController.edit);
+
+router.patch('/:id/finish', matchController.finish);
 
 export default router;

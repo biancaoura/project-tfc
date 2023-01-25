@@ -22,7 +22,15 @@ export default class MatchController {
   public edit = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
-    await this._matchService.edit(id);
+    const edited = await this._matchService.edit(id, req.body);
+
+    res.status(StatusCodes.OK).json(edited);
+  };
+
+  public finish = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+
+    await this._matchService.finish(id);
 
     res.status(StatusCodes.OK).json({ message: 'Finished' });
   };

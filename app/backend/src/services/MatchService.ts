@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import IGoals from '../interfaces/IGoals';
 import IMatch from '../interfaces/IMatch';
 import Team from '../database/models/Team';
 import Match from '../database/models/Match';
@@ -61,7 +62,19 @@ export default class MatchService {
     return newMatch;
   }
 
-  public async edit(id: string) {
+  public async edit(id: string, goals: IGoals): Promise<IMatch> {
+    const { homeTeamGoals, awayTeamGoals } = goals;
+
+    await this._matchModel.update(
+      { homeTeamGoals, awayTeamGoals },
+      { where: { id } },
+    );
+
+    const updatedMatch = await this.getById(Number(id));
+    return updatedMatch;
+  }
+
+  public async finish(id: string) {
     const finished = { inProgress: 'false' };
     const edited = await this._matchModel.update(finished, { where: { id } });
 
