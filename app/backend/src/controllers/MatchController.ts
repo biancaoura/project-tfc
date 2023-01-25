@@ -19,4 +19,12 @@ export default class MatchController {
 
     res.status(StatusCodes.CREATED).json(newMatch.dataValues);
   };
+
+  public edit = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+
+    await this._matchService.edit(id);
+
+    res.status(StatusCodes.OK).json({ message: 'Finished' });
+  };
 }

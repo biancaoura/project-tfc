@@ -28,4 +28,11 @@ export default class MatchService {
 
     return newMatch;
   }
+
+  public async edit(id: string) {
+    const finished = { inProgress: 'false' };
+    const edited = await this._matchModel.update(finished, { where: { id } });
+
+    return edited;
+  }
 }
