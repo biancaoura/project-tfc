@@ -22,4 +22,10 @@ export default class MatchService {
 
     return matches;
   }
+
+  public async create(match: IMatch) {
+    const newMatch = await this._matchModel.create({ ...match, inProgress: true });
+
+    return newMatch;
+  }
 }

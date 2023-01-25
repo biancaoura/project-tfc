@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+// import IMatch from '../interfaces/IMatch';
 import MatchService from '../services/MatchService';
 
 export default class MatchController {
@@ -11,5 +12,11 @@ export default class MatchController {
     const matches = await this._matchService.getAll(inProgress as string | undefined);
 
     res.status(StatusCodes.OK).json(matches);
+  };
+
+  public create = async (req: Request, res: Response): Promise<void> => {
+    const newMatch = await this._matchService.create(req.body);
+
+    res.status(StatusCodes.CREATED).json(newMatch.dataValues);
   };
 }
