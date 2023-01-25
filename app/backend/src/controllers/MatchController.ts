@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-// import IMatch from '../interfaces/IMatch';
 import MatchService from '../services/MatchService';
 
 export default class MatchController {
