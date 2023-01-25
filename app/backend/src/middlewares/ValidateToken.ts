@@ -11,9 +11,12 @@ export default class ValidateToken {
 
     if (!token) throw new HttpError(StatusCodes.UNAUTHORIZED, 'Token not found');
 
-    const payload = jwt.validateToken(token);
-    req.body.user = payload;
-
-    next();
+    try {
+      const payload = jwt.validateToken(token);
+      req.body.user = payload;
+      next();
+    } catch (e) {
+      throw new HttpError(StatusCodes.UNAUTHORIZED, 'Token must be a valid token');
+    }
   };
 }
