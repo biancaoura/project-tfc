@@ -6,7 +6,7 @@ import JWT from '../utils/JWT';
 const jwt = new JWT();
 
 export default class ValidateToken {
-  public auth = async (req: Request, _res: Response, next: NextFunction) => {
+  public static auth = async (req: Request, _res: Response, next: NextFunction) => {
     const { authorization: token } = req.headers;
 
     if (!token) throw new HttpError(StatusCodes.UNAUTHORIZED, 'Token not found');
