@@ -5,8 +5,10 @@ import MatchService from '../services/MatchService';
 export default class MatchController {
   constructor(private _matchService = new MatchService()) { }
 
-  public getAll = async (_req: Request, res: Response) => {
-    const matches = await this._matchService.getAll();
+  public getAll = async (req: Request, res: Response):Promise<void> => {
+    const { inProgress } = req.query;
+
+    const matches = await this._matchService.getAll(inProgress as string | undefined);
 
     res.status(StatusCodes.OK).json(matches);
   };

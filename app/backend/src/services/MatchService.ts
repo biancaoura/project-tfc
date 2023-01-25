@@ -7,8 +7,14 @@ export default class MatchService {
     private _matchModel = Match,
   ) { }
 
-  public async getAll(): Promise<IMatch[]> {
+  public async getAll(inProgress: string | undefined): Promise<IMatch[]> {
+    let where;
+    if (inProgress) {
+      where = inProgress === 'true' ? { inProgress: true } : { inProgress: false };
+    }
+
     const matches = await this._matchModel.findAll({
+      where,
       include: [
         { model: Team, as: 'homeTeam', attributes: { exclude: ['id'] } },
         { model: Team, as: 'awayTeam', attributes: { exclude: ['id'] } },
