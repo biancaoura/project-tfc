@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import HttpError from '../utils/HttpError';
 import TeamService from '../services/TeamService';
 
 export default class TeamController {
@@ -13,8 +14,10 @@ export default class TeamController {
 
   public getById = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-    const { status, message } = await this._teamService.getById(id);
+    const team = await this._teamService.getById(Number(id));
 
-    res.status(status).json(message);
+    if (!team) throw new HttpError(StatusCodes.IM_A_TEAPOT, 'No coffee for you');
+
+    res.status(StatusCodes.OK).json(team);
   };
 }

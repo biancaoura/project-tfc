@@ -9,11 +9,8 @@ export default class TeamService {
     return teams;
   }
 
-  public async getById(id: string) {
+  public async getById(id: number) {
     const team = await this._teamModel.findByPk(id);
-
-    if (!team) return { status: 418, message: 'No coffee for you' };
-
-    return { status: 200, message: team as ITeam };
+    return team;
   }
 }
