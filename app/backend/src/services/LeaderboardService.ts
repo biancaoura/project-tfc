@@ -11,28 +11,28 @@ export default class LeaderboardService {
     private _matchModel = Match,
   ) { }
 
-  public async getLeaderboard() {
+  public async getLeaderboard(gamePlace: 'home' | 'away') {
     const teams = await this._teamService.getAll();
 
-    const homeTeam = Promise.all(teams.map(async (t) => this.getTeamStats(t)));
+    const team = Promise.all(teams.map(async (t) => this.getTeamStats(t, gamePlace)));
 
-    const rank = Promise.all(LeaderboardService.getRank(await homeTeam));
+    const rank = Promise.all(LeaderboardService.getRank(await team));
 
     return rank;
   }
 
-  private async getTeamStats(team: ITeam): Promise<ILeaderboard> {
+  private async getTeamStats(team: ITeam, gamePlace: 'home' | 'away'): Promise<ILeaderboard> {
     const teamMatches = await this._matchModel.findAll({
-      where: { homeTeamId: team.id, inProgress: false },
+      where: { [`${gamePlace}TeamId`]: team.id, inProgress: false },
     });
 
     const points = teamMatches.map(LeaderboardService.calculatePoints);
 
-    const totalPoints = LeaderboardService.getTotalPoints(points);
+    const totalPoints = LeaderboardService.getTotalPoints(points, gamePlace);
     const totalGames = teamMatches.length;
-    const matchResult = LeaderboardService.getMatchResults(points);
+    const matchResult = LeaderboardService.getMatchResults(points, gamePlace);
     const efficiency = LeaderboardService.calculateEfficiency(totalPoints, totalGames);
-    const goals = LeaderboardService.getGoals(teamMatches);
+    const goals = LeaderboardService.getGoals(teamMatches, gamePlace);
 
     return {
       name: team.teamName,
@@ -51,25 +51,29 @@ export default class LeaderboardService {
     return { homeTeam: 1, awayTeam: 1, win: 'draw' };
   }
 
-  private static getTotalPoints(points: IPoints[]) {
-    return points.reduce((curr, acc) => curr + acc.homeTeam, 0);
+  private static getTotalPoints(points: IPoints[], gamePlace: 'home' | 'away') {
+    return points.reduce((curr, acc) => curr + acc[`${gamePlace}Team`], 0);
   }
 
-  private static getMatchResults(points: IPoints[]) {
+  private static getMatchResults(points: IPoints[], gamePlace: 'home' | 'away') {
+    const isAway = gamePlace === 'home' ? 'away' : 'home';
+
     return {
-      totalVictories: points.filter(({ win }) => win === 'home').length,
+      totalVictories: points.filter(({ win }) => win === gamePlace).length,
       totalDraws: points.filter(({ win }) => win === 'draw').length,
-      totalLosses: points.filter(({ win }) => win === 'away').length,
+      totalLosses: points.filter(({ win }) => win === isAway).length,
     };
   }
 
-  private static getGoals(matches: IMatch[]) {
+  private static getGoals(matches: IMatch[], gamePlace: 'home' | 'away') {
+    const isAway = gamePlace === 'home' ? 'away' : 'home';
+
     const goalsFavor = matches
-      .map(({ homeTeamGoals }) => homeTeamGoals)
+      .map((match) => match[`${gamePlace}TeamGoals`])
       .reduce((a, b) => a + b);
 
     const goalsOwn = matches
-      .map(({ awayTeamGoals }) => awayTeamGoals)
+      .map((match) => match[`${isAway}TeamGoals`])
       .reduce((a, b) => a + b);
 
     const goalsBalance = goalsFavor - goalsOwn;
