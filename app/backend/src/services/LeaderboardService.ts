@@ -21,6 +21,41 @@ export default class LeaderboardService {
     return rank;
   }
 
+  public async getOverallLeaderboard() {
+    const teams = await this._teamService.getAll();
+    const homeTeams = Promise.all(teams.map(async (t) => this.getTeamStats(t, 'home')));
+    const awayTeams = Promise.all(teams.map(async (t) => this.getTeamStats(t, 'away')));
+
+    const points = LeaderboardService.getOverallPoints(await homeTeams, await awayTeams);
+
+    const rank = Promise.all(LeaderboardService.getRank(points));
+
+    return rank;
+  }
+
+  private static getOverallPoints(boardA: ILeaderboard[], boardB: ILeaderboard[]): ILeaderboard[] {
+    return boardA.map((a) => {
+      const b = boardB.find(({ name }) => name === a.name);
+      if (!b) return a;
+
+      const efficiency = LeaderboardService
+        .calculateEfficiency((a.totalPoints + b.totalPoints), (a.totalGames + b.totalGames));
+
+      return {
+        name: a.name,
+        totalPoints: a.totalPoints + b.totalPoints,
+        totalGames: a.totalGames + b.totalGames,
+        totalVictories: a.totalVictories + b.totalVictories,
+        totalDraws: a.totalDraws + b.totalDraws,
+        totalLosses: a.totalLosses + b.totalLosses,
+        goalsFavor: a.goalsFavor + b.goalsFavor,
+        goalsOwn: a.goalsOwn + b.goalsOwn,
+        goalsBalance: a.goalsBalance + b.goalsBalance,
+        efficiency,
+      };
+    });
+  }
+
   private async getTeamStats(team: ITeam, gamePlace: 'home' | 'away'): Promise<ILeaderboard> {
     const teamMatches = await this._matchModel.findAll({
       where: { [`${gamePlace}TeamId`]: team.id, inProgress: false },
@@ -52,7 +87,7 @@ export default class LeaderboardService {
   }
 
   private static getTotalPoints(points: IPoints[], gamePlace: 'home' | 'away'): number {
-    return points.reduce((curr, acc) => curr + acc[`${gamePlace}Team`], 0);
+    return points.reduce((a, b) => a + b[`${gamePlace}Team`], 0);
   }
 
   private static getMatchResults(points: IPoints[], gamePlace: 'home' | 'away') {
@@ -87,7 +122,8 @@ export default class LeaderboardService {
 
   private static getRank(teams: ILeaderboard[]): ILeaderboard[] {
     return teams.sort((a, b) =>
-      b.totalPoints - a.totalPoints
+      b.totalVictories - a.totalVictories
+    || b.totalPoints - a.totalPoints
     || b.goalsBalance - a.goalsBalance
     || b.goalsFavor - a.goalsFavor
     || a.goalsOwn - b.goalsOwn);
