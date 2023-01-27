@@ -11,7 +11,7 @@ export default class LeaderboardService {
     private _matchModel = Match,
   ) { }
 
-  public async getLeaderboard(gamePlace: 'home' | 'away') {
+  public async getLeaderboard(gamePlace: 'home' | 'away'): Promise<ILeaderboard[]> {
     const teams = await this._teamService.getAll();
 
     const team = Promise.all(teams.map(async (t) => this.getTeamStats(t, gamePlace)));
@@ -51,7 +51,7 @@ export default class LeaderboardService {
     return { homeTeam: 1, awayTeam: 1, win: 'draw' };
   }
 
-  private static getTotalPoints(points: IPoints[], gamePlace: 'home' | 'away') {
+  private static getTotalPoints(points: IPoints[], gamePlace: 'home' | 'away'): number {
     return points.reduce((curr, acc) => curr + acc[`${gamePlace}Team`], 0);
   }
 
@@ -81,11 +81,11 @@ export default class LeaderboardService {
     return { goalsFavor, goalsOwn, goalsBalance };
   }
 
-  private static calculateEfficiency(totalPoints: number, totalGames: number) {
+  private static calculateEfficiency(totalPoints: number, totalGames: number): string {
     return ((totalPoints / (totalGames * 3)) * 100).toFixed(2);
   }
 
-  private static getRank(teams: ILeaderboard[]) {
+  private static getRank(teams: ILeaderboard[]): ILeaderboard[] {
     return teams.sort((a, b) =>
       b.totalPoints - a.totalPoints
     || b.goalsBalance - a.goalsBalance
