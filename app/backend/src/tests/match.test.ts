@@ -23,12 +23,6 @@ describe('Testing Matches route', function () {
   
   describe('Testing GET /matches route', function () {
 
-    // beforeEach(async () => {
-    //   sinon
-    //   .stub(Match, 'findAll')
-    //   .resolves(matches as unknown as Match[]);
-    // });
-
     it('1 - Should return all matches without a query string', async function () {
       sinon
       .stub(Match, 'findAll')
