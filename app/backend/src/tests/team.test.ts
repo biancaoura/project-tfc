@@ -57,11 +57,11 @@ describe('Testing Teams route', function () {
     it('2 - Should throw an error if there\'s no corresponding team', async function () {
       sinon
       .stub(Team, 'findByPk')
-      .resolves(teams[2] as Team);
+      .resolves(teams[99] as Team);
 
       response = await chai
       .request(app)
-      .get('/teams/3');
+      .get('/teams/100');
 
       expect(response.status).to.be.equal(StatusCodes.IM_A_TEAPOT);
     });

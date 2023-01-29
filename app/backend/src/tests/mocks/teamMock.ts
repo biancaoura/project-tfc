@@ -6,5 +6,9 @@ export const teams = [
   {
     id: 2,
     teamName: 'Bahia',
-  }
+  },
+  {
+    id: 3,
+    teamName: 'Botafogo',
+  },
 ]
