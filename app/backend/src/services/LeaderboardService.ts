@@ -4,6 +4,7 @@ import IMatch from '../interfaces/IMatch';
 import ITeam from '../interfaces/ITeam';
 import ILeaderboard from '../interfaces/ILeaderboard';
 import TeamService from './TeamService';
+import TGamePlace from '../interfaces/TGamePlace';
 
 export default class LeaderboardService {
   constructor(
@@ -11,7 +12,7 @@ export default class LeaderboardService {
     private _matchModel = Match,
   ) { }
 
-  public async getLeaderboard(gamePlace: 'home' | 'away'): Promise<ILeaderboard[]> {
+  public async getLeaderboard(gamePlace: TGamePlace): Promise<ILeaderboard[]> {
     const teams = await this._teamService.getAll();
 
     const team = Promise.all(teams.map(async (t) => this.getTeamStats(t, gamePlace)));
@@ -56,7 +57,7 @@ export default class LeaderboardService {
     });
   }
 
-  private async getTeamStats(team: ITeam, gamePlace: 'home' | 'away'): Promise<ILeaderboard> {
+  private async getTeamStats(team: ITeam, gamePlace: TGamePlace): Promise<ILeaderboard> {
     const teamMatches = await this._matchModel.findAll({
       where: { [`${gamePlace}TeamId`]: team.id, inProgress: false },
     });
@@ -86,11 +87,11 @@ export default class LeaderboardService {
     return { homeTeam: 1, awayTeam: 1, win: 'draw' };
   }
 
-  private static getTotalPoints(points: IPoints[], gamePlace: 'home' | 'away'): number {
+  private static getTotalPoints(points: IPoints[], gamePlace: TGamePlace): number {
     return points.reduce((a, b) => a + b[`${gamePlace}Team`], 0);
   }
 
-  private static getMatchResults(points: IPoints[], gamePlace: 'home' | 'away') {
+  private static getMatchResults(points: IPoints[], gamePlace: TGamePlace) {
     const isAway = gamePlace === 'home' ? 'away' : 'home';
 
     return {
@@ -100,7 +101,7 @@ export default class LeaderboardService {
     };
   }
 
-  private static getGoals(matches: IMatch[], gamePlace: 'home' | 'away') {
+  private static getGoals(matches: IMatch[], gamePlace: TGamePlace) {
     const isAway = gamePlace === 'home' ? 'away' : 'home';
 
     const goalsFavor = matches
